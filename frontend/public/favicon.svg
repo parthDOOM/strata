@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M4 17l-2-5 2-5" class="text-slate-400" stroke="#94a3b8"/>
+  <path d="M20 17l2-5-2-5" class="text-slate-400" stroke="#94a3b8"/>
+  
+  <path d="M9 10v6" class="text-red-500" stroke="#ef4444" stroke-width="2"/>
+  <path d="M9 8v2" class="text-red-500" stroke="#ef4444" stroke-width="1"/>
+  <path d="M9 16v2" class="text-red-500" stroke="#ef4444" stroke-width="1"/>
+  
+  <path d="M15 7v6" class="text-emerald-500" stroke="#10b981" stroke-width="2"/>
+  <path d="M15 5v2" class="text-emerald-500" stroke="#10b981" stroke-width="1"/>
+  <path d="M15 13v3" class="text-emerald-500" stroke="#10b981" stroke-width="1"/>
+</svg>

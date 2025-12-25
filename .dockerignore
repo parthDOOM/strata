@@ -1,0 +1,28 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env
+
+# NodeJS
+node_modules/
+npm-debug.log
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+
+# Local data (don't copy into image, it is mounted)
+backend/app.db
+*.db
+backend/data/
+data/

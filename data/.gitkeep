@@ -1,0 +1,2 @@
+# This directory is for SQLite databases and local storage.
+# The .gitkeep file ensures this directory is tracked by Git while ignoring .db files.

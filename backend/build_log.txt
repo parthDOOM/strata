@@ -1,0 +1,31 @@
+﻿============================================================
+Monte Carlo Engine Build Script
+============================================================
+python : Traceback (most recent call 
+last):
+At line:1 char:1
++ python scripts/build_extension.py 2>&1 
+| Out-File -FilePath build_log ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecifie 
+   d: (Traceback (most recent call last)  
+  ::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeComma 
+   ndError
+ 
+  File "E:\Qua\quant-platform\backend\scri
+pts\build_extension.py", line 217, in 
+<module>
+    main()
+  File "E:\Qua\quant-platform\backend\scri
+pts\build_extension.py", line 202, in main
+    print("\n\U0001f4cb Checking 
+dependencies...")
+  File "C:\Users\parth\AppData\Local\Progr
+ams\Python\Python310\lib\encodings\cp1252.
+py", line 19, in encode
+    return codecs.charmap_encode(input,sel
+f.errors,encoding_table)[0]
+UnicodeEncodeError: 'charmap' codec can't 
+encode character '\U0001f4cb' in position 
+2: character maps to <undefined>
