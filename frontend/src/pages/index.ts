@@ -11,4 +11,5 @@ export { default as PortfolioOptimization } from "./PortfolioOptimization";
 export { default as MarketDataPage } from "./MarketDataPage";
 export { default as BacktestPage } from "./BacktestPage";
 export { default as NewsPage } from "./NewsPage";
+export { default as PortfolioDashboard } from "./PortfolioDashboard";
 export { default as SettingsPage } from "./SettingsPage";

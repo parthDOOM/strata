@@ -37,7 +37,7 @@ def create_db_and_tables() -> None:
     Uses SQLModel's metadata to create tables if they don't exist.
     """
     # Import models to register them with SQLModel metadata
-    from app.models import market_data  # noqa: F401
+    from app.models import market_data, portfolio  # noqa: F401
 
     SQLModel.metadata.create_all(engine)
     print(f"Database initialized at: {_db_path}")

@@ -1,10 +1,21 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { ExternalLink, Globe } from "lucide-react";
+import { ExternalLink, Globe, Filter } from "lucide-react";
 
 import { api } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { usePortfolio } from "@/context/PortfolioContext";
 import {
     Card,
     CardContent,
@@ -29,28 +40,68 @@ interface NewsItem {
     related_symbol?: string;
 }
 
-const fetchGlobalNews = async (): Promise<NewsItem[]> => {
-    const res = await api.get<NewsItem[]>("/news/global");
+const fetchGlobalNews = async (tickers?: string[]): Promise<NewsItem[]> => {
+    const params = tickers && tickers.length > 0 ? { tickers } : {};
+    const res = await api.get<NewsItem[]>("/news/global", { params });
     return res.data;
 };
 
 export default function NewsPage() {
+    const { portfolios } = usePortfolio();
+    const [selectedPortfolioId, setSelectedPortfolioId] = useState<string>("global");
+
+    // Fetch items for the specifically selected portfolio (for filtering)
+    // We don't rely on global activePortfolio here, giving user independent control on this page.
+    const { data: portfolioData } = useQuery({
+        queryKey: ["portfolio", selectedPortfolioId, "items"],
+        queryFn: async () => {
+            if (selectedPortfolioId === "global") return null;
+            const res = await api.get<{ items: { symbol: string }[] }>(`/portfolio/${selectedPortfolioId}`);
+            return res.data;
+        },
+        enabled: selectedPortfolioId !== "global",
+    });
+
+    const portfolioTickers = portfolioData?.items?.map(i => i.symbol) || [];
+    const isFiltering = selectedPortfolioId !== "global";
+
     const { data: news, isLoading, isError } = useQuery({
-        queryKey: ["global-news"],
-        queryFn: fetchGlobalNews,
-        refetchInterval: 60000 * 5, // Refresh every 5 mins
+        queryKey: ["global-news", selectedPortfolioId],
+        queryFn: () => fetchGlobalNews(isFiltering ? portfolioTickers : undefined),
+        refetchInterval: 60000 * 5,
+        enabled: !isFiltering || (isFiltering && !!portfolioData),
     });
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-                    <Globe className="h-8 w-8 text-primary" />
-                    Global Market News
-                </h1>
-                <p className="text-muted-foreground">
-                    Latest updates from major financial markets and government decisions.
-                </p>
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col gap-2">
+                    <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+                        <Globe className="h-8 w-8 text-primary" />
+                        {isFiltering ? `${portfolios.find(p => p.id.toString() === selectedPortfolioId)?.name} News` : "Global Market News"}
+                    </h1>
+                    <p className="text-muted-foreground">
+                        {isFiltering
+                            ? "Curated news for assets in this portfolio."
+                            : "Latest updates from major financial markets and government decisions."}
+                    </p>
+                </div>
+
+                <div className="w-[200px]">
+                    <Select value={selectedPortfolioId} onValueChange={setSelectedPortfolioId}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select News Source" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="global">Global Market</SelectItem>
+                            {portfolios.map((p) => (
+                                <SelectItem key={p.id} value={p.id.toString()}>
+                                    {p.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
 
             {isLoading ? (

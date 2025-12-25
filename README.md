@@ -127,6 +127,15 @@ Proprietary C++ engine for high-performance price path simulation.
 *   **Inputs**: Historical Volatility over 1 year.
 *   **Outputs**: 10,000+ simulations to estimate 5th percentile (Risk) and 95th percentile (Upside).
 
+### Portfolio Management
+![Portfolio Dashboard](frontend/public/assets/my_Portfolio_demo.png)
+![Portfolio Holdings](frontend/public/assets/my_Portfolio_demo_holdings.png)
+Comprehensive portfolio tracking and performance analysis.
+*   **Performance Metrics**: Real-time tracking of Total Value, Daily Return, and Equity Curve using historical data.
+*   **Holdings Management**: Add specific positions with intelligent "Smart Search" for tickers.
+*   **Multi-Portfolio Support**: Create, manage, and delete multiple distinct portfolios.
+*   **Smart News Filtering**: Filter global news based on the holdings of your specific portfolio.
+
 ### Data Management
 ![Data Management](frontend/public/assets/data_management.png)
 ![Add Ticker](frontend/public/assets/add_ticker.png)

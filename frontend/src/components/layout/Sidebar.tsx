@@ -48,7 +48,59 @@ interface SidebarProps {
 
 import { Logo } from "@/components/Logo";
 
+import { useState } from "react";
+import { Plus } from "lucide-react";
+import { usePortfolio } from "@/context/PortfolioContext";
+import { api } from "@/lib/api";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 export function Sidebar({ className }: SidebarProps) {
+    const { portfolios, activePortfolioId, setActivePortfolioId, refreshPortfolios } = usePortfolio();
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [newPortfolioName, setNewPortfolioName] = useState("");
+    const [newUserName, setNewUserName] = useState("Guest");
+    const [isCreating, setIsCreating] = useState(false);
+
+    const handleCreatePortfolio = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newPortfolioName.trim()) return;
+
+        setIsCreating(true);
+        try {
+            const response = await api.post<{ id: number; name: string }>("/portfolio/", {
+                name: newPortfolioName,
+                user_name: newUserName || "Guest",
+            });
+            await refreshPortfolios();
+            setActivePortfolioId(response.data.id);
+            setIsCreateOpen(false);
+            setNewPortfolioName("");
+            setNewUserName("Guest");
+        } catch (error) {
+            console.error("Failed to create portfolio", error);
+        } finally {
+            setIsCreating(false);
+        }
+    };
+
     return (
         <aside
             className={cn(
@@ -68,6 +120,79 @@ export function Sidebar({ className }: SidebarProps) {
 
             <Separator />
 
+            {/* Portfolio Selector */}
+            <div className="px-4 py-4">
+                <div className="space-y-2">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        Active Portfolio
+                    </label>
+                    <Select
+                        value={activePortfolioId?.toString() || "global"}
+                        onValueChange={(val) => setActivePortfolioId(val === "global" ? null : parseInt(val))}
+                    >
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select Portfolio" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="global">
+                                <span className="font-medium">Global View</span>
+                            </SelectItem>
+                            {portfolios.map((p) => (
+                                <SelectItem key={p.id} value={p.id.toString()}>
+                                    {p.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="w-full">
+                                <Plus className="w-4 h-4 mr-2" />
+                                New Portfolio
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Create Portfolio</DialogTitle>
+                                <DialogDescription>
+                                    Create a new collection to track your assets.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <form onSubmit={handleCreatePortfolio}>
+                                <div className="grid gap-4 py-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="name">Portfolio Name</Label>
+                                        <Input
+                                            id="name"
+                                            value={newPortfolioName}
+                                            onChange={(e) => setNewPortfolioName(e.target.value)}
+                                            placeholder="e.g. Tech Growth"
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="username">User Name</Label>
+                                        <Input
+                                            id="username"
+                                            value={newUserName}
+                                            onChange={(e) => setNewUserName(e.target.value)}
+                                            placeholder="e.g. John Doe"
+                                        />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button type="submit" disabled={isCreating}>
+                                        {isCreating ? "Creating..." : "Create Portfolio"}
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+            </div>
+
+            <Separator />
+
             {/* Main Navigation */}
             <nav className="flex-1 p-4 space-y-1">
                 <p className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -76,6 +201,11 @@ export function Sidebar({ className }: SidebarProps) {
                 <NavItem to="/" icon={LayoutDashboard}>
                     Dashboard
                 </NavItem>
+                {activePortfolioId && (
+                    <NavItem to="/portfolio/my-view" icon={LineChart}>
+                        My Portfolio
+                    </NavItem>
+                )}
                 <NavItem to="/market" icon={LineChart}>
                     Market Analysis
                 </NavItem>
@@ -99,8 +229,6 @@ export function Sidebar({ className }: SidebarProps) {
                 <NavItem to="/database" icon={Database}>
                     Data Management
                 </NavItem>
-
-
             </nav>
 
             <Separator />

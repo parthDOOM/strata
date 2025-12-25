@@ -6,6 +6,8 @@ import { useState, useEffect, useRef } from "react";
 export interface WebSocketMessage {
     ticker: string;
     price: number;
+    change?: number;
+    percent_change?: number;
     timestamp: string;
 }
 

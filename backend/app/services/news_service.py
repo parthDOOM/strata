@@ -18,12 +18,15 @@ GLOBAL_SYMBOLS = [
 
 class NewsService:
     @staticmethod
-    async def fetch_global_news() -> List[Dict[str, Any]]:
+    async def fetch_global_news(tickers: List[str] = None) -> List[Dict[str, Any]]:
         """
         Fetches news for major global indices and assets.
         Aggregates and sorts them by recency.
         """
         all_news = []
+        
+        # Determine which symbols to fetch
+        symbols_to_fetch = tickers if tickers else GLOBAL_SYMBOLS
         
         # We can run these in parallel or loop. yfinance calls are sync but fast for metadata.
         # Ideally we'd wrap in run_in_executor if they were blocking IO, 
@@ -32,7 +35,7 @@ class NewsService:
         # To make it slightly faster and "async-like", we can use a simple loop 
         # as yf.Ticker(...).news is usually a property access or hidden API call
         
-        for symbol in GLOBAL_SYMBOLS:
+        for symbol in symbols_to_fetch:
             try:
                 ticker = yf.Ticker(symbol)
                 news = ticker.news

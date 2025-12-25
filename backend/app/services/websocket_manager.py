@@ -64,6 +64,9 @@ async def price_generator(ticker: str) -> AsyncGenerator[dict, None]:
     # Add some initial noise
     price += random.uniform(-price*0.001, price*0.001)
 
+    # Store initial reference price for change calculation
+    open_price = price
+
     while True:
         await asyncio.sleep(1) # 1 Tick per second
         
@@ -72,8 +75,13 @@ async def price_generator(ticker: str) -> AsyncGenerator[dict, None]:
         shock = random.gauss(0, volatility)
         price += shock
         
+        change = price - open_price
+        percent_change = (change / open_price) * 100
+
         yield {
             "ticker": ticker.upper(),
             "price": round(price, 2),
+            "change": round(change, 2),
+            "percent_change": round(percent_change, 2),
             "timestamp": datetime.now().isoformat()
         }
