@@ -32,7 +32,7 @@ export default function EquityCurve({ dates, strategyEquity, benchmarkEquity }: 
                             dataKey="date"
                             stroke="#94a3b8"
                             tickFormatter={(value) => value.split('T')[0]}
-                            minTickGap={50}
+                            minTickGap={80}
                         />
                         <YAxis
                             stroke="#94a3b8"
@@ -44,7 +44,7 @@ export default function EquityCurve({ dates, strategyEquity, benchmarkEquity }: 
                             formatter={(value: number) => [`${((value - 1) * 100).toFixed(2)}%`, 'Return']}
                             labelStyle={{ color: "#94a3b8" }}
                         />
-                        <Legend />
+                        <Legend verticalAlign="top" height={36} />
                         <Line
                             type="monotone"
                             dataKey="strategy"

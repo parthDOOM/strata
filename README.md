@@ -119,6 +119,10 @@ Identifies pairs of assets that move together (cointegration).
 *   **Universe**: Scans 50+ tickers across Tech, Finance, Energy, and Healthcare.
 *   **Metrics**: Calculates Hedge Ratio, Half-Life, and current Z-Score.
 *   **Signals**: Highlights pairs with statistical significance (p-value < 0.05).
+*   **Strategy Optimization**: Built-in Grid Search tool to find optimal Entry/Exit Z-score thresholds.
+    *   **Backtesting**: Simulate performance on historical data.
+    *   **Heatmap Visualization**: 2D Heatmap of Sharpe Ratios across different parameter combinations.
+    *   **Sensitivity Analysis**: Inspect Win Rate, Total Return, and Trade Count for every parameter set.
 
 ### Monte Carlo Simulation
 ![Monte Carlo Simulation](frontend/public/assets/monte_carlo.png)

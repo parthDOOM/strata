@@ -111,7 +111,7 @@ export function NotificationCenter() {
                             </SheetDescription>
                         </div>
                         {unreadCount > 0 && (
-                            <Button variant="ghost" size="sm" onClick={markAllRead} className="text-xs h-8">
+                            <Button variant="ghost" size="sm" onClick={markAllRead} className="text-xs h-8 mr-8">
                                 Mark all read
                             </Button>
                         )}
