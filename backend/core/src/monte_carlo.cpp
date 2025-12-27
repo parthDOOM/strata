@@ -87,17 +87,30 @@ SimulationResult run_monte_carlo(
     }
 
     // Final price statistics
-    const std::vector<double>& final_prices = paths[num_steps];
+    const std::vector<double>& final_prices_sorted = paths[num_steps];
+    
+    // Copy sorted final prices for Python access (CVaR)
+    result.final_prices = final_prices_sorted;
 
-    result.final_price_min = final_prices.front();  // Already sorted
-    result.final_price_max = final_prices.back();
+    result.final_price_min = final_prices_sorted.front();
+    result.final_price_max = final_prices_sorted.back();
 
-    double sum = std::accumulate(final_prices.begin(), final_prices.end(), 0.0);
+    double sum = std::accumulate(final_prices_sorted.begin(), final_prices_sorted.end(), 0.0);
     result.final_price_mean = sum / num_simulations;
+
+    // Percentiles for Tail Risk
+    int idx_01 = static_cast<int>(0.01 * num_simulations);
+    int idx_05 = static_cast<int>(0.05 * num_simulations);
+    
+    idx_01 = std::max(0, std::min(idx_01, num_simulations - 1));
+    idx_05 = std::max(0, std::min(idx_05, num_simulations - 1));
+
+    result.final_percentile_01 = final_prices_sorted[idx_01];
+    result.final_percentile_05 = final_prices_sorted[idx_05];
 
     // Standard deviation
     double sq_sum = 0.0;
-    for (double price : final_prices) {
+    for (double price : final_prices_sorted) {
         double diff = price - result.final_price_mean;
         sq_sum += diff * diff;
     }
@@ -126,7 +139,7 @@ SimulationResult run_monte_carlo(
     }
 
     // Count prices in each bin
-    for (double price : final_prices) {
+    for (double price : final_prices_sorted) {
         int bin = static_cast<int>((price - hist_min) / bin_width);
         // Clamp to valid bin range
         bin = std::max(0, std::min(bin, histogram_bins - 1));

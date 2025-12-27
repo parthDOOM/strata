@@ -56,12 +56,20 @@ export interface HistogramData {
     edges: number[];
 }
 
+export interface TailRiskMetrics {
+    var_95: number;
+    var_99: number;
+    cvar_95: number;
+    cvar_99: number;
+}
+
 export interface SimulationResults {
     mean_path: number[];
     percentile_05: number[];
     percentile_95: number[];
     histogram: HistogramData;
     final_price: FinalPriceStats;
+    tail_risk: TailRiskMetrics;
 }
 
 export interface SimulationResponse {

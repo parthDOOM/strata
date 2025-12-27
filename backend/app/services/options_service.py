@@ -11,8 +11,10 @@ from functools import lru_cache
 from typing import Dict, List, Any, Optional
 
 # Caching at module level to persist across request instances if service is instantiated per request
-@lru_cache(maxsize=32)
+# Caching removed for debugging
+# @lru_cache(maxsize=32)
 def get_cached_options_data(ticker_symbol: str) -> Dict[str, Any]:
+    print(f"DEBUG: Processing options for {ticker_symbol}")
     """
     Fetch and process options data. Cached to prevent spamming YFinance.
     """
@@ -94,10 +96,76 @@ def get_cached_options_data(ticker_symbol: str) -> Dict[str, Any]:
     # Plotly 'mesh3d' with 'intensity' set to z creates a surface-like look from points.
     # Let's return raw points lists.
     
+    # Get Spot Price for Greeks
+    try:
+        spot_price = ticker.fast_info.last_price
+    except:
+        # Fallback
+        hist = ticker.history(period="1d")
+        if not hist.empty:
+            spot_price = hist['Close'].iloc[-1]
+        else:
+            spot_price = 100.0 # Fallback default
+    
+    # Calculate Greeks via C++ Engine
+    num_rows = len(final_df)
+    deltas = [0.0] * num_rows
+    gammas = [0.0] * num_rows
+    vegas = [0.0] * num_rows
+    thetas = [0.0] * num_rows
+    rhos = [0.0] * num_rows
+    
+    try:
+        from app.engine import monte_carlo_engine
+        
+        # Ensure spot_price is float
+        if spot_price is None:
+            spot_price = 100.0
+        spot_price = float(spot_price)
+
+        for i, (_, row) in enumerate(final_df.iterrows()):
+            try:
+                k = float(row['strike'])
+                # avoid division by zero if daysToExpiry is 0 (though we filtered <=0)
+                t = max(float(row['daysToExpiry']) / 365.0, 0.001)
+                sigma = float(row['impliedVolatility'])
+                
+                # Assuming Risk Free Rate = 4.5%
+                r = 0.045
+                
+                greeks = monte_carlo_engine.calculate_greeks(
+                    strike=k,
+                    time_to_expiry=t,
+                    spot=spot_price,
+                    risk_free_rate=r,
+                    volatility=sigma,
+                    is_call=True
+                )
+                
+                deltas[i] = greeks.delta
+                gammas[i] = greeks.gamma
+                vegas[i] = greeks.vega
+                thetas[i] = greeks.theta
+                rhos[i] = greeks.rho
+            except Exception as e_row:
+                # Log occasional row error but continue
+                print(f"Row {i} error: {e_row}")
+                continue
+            
+    except ImportError:
+        print("Greeks engine not available (ImportError). Using zeros.")
+    except Exception as e:
+        print(f"Error initializing Greeks engine: {e}")
+    
     return {
         "x": final_df['strike'].tolist(),
         "y": final_df['daysToExpiry'].tolist(),
-        "z": final_df['impliedVolatility'].tolist()
+        "z": final_df['impliedVolatility'].tolist(),
+        "delta": deltas,
+        "gamma": gammas,
+        "vega": vegas,
+        "theta": thetas,
+        "rho": rhos
     }
 
 class OptionsService:

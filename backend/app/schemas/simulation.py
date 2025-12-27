@@ -85,6 +85,15 @@ class HistogramData(BaseModel):
     edges: list[float] = Field(..., description="Bin edge values")
 
 
+class TailRiskMetrics(BaseModel):
+    """Value at Risk and Conditional Value at Risk metrics."""
+    
+    var_95: float = Field(..., description="Value at Risk (95% confidence)")
+    var_99: float = Field(..., description="Value at Risk (99% confidence)")
+    cvar_95: float = Field(..., description="Conditional VaR (95%) - Expected Shortfall")
+    cvar_99: float = Field(..., description="Conditional VaR (99%) - Expected Shortfall")
+
+
 class SimulationResults(BaseModel):
     """Core simulation output data."""
 
@@ -93,6 +102,7 @@ class SimulationResults(BaseModel):
     percentile_95: list[float] = Field(..., description="95th percentile path (95% CI upper)")
     histogram: HistogramData = Field(..., description="Final price distribution")
     final_price: FinalPriceStats = Field(..., description="Final price statistics")
+    tail_risk: TailRiskMetrics = Field(..., description="Risk analysis metrics")
 
 
 class SimulationResponse(BaseModel):

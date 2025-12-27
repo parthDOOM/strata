@@ -42,6 +42,11 @@ struct SimulationResult {
     double final_price_std;
     double final_price_min;
     double final_price_max;
+
+    /// Tail Risk Metrics
+    std::vector<double> final_prices; // Expose full distribution for CVaR calc
+    double final_percentile_05;       // For 95% VaR
+    double final_percentile_01;       // For 99% VaR
 };
 
 /**

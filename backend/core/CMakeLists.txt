@@ -44,6 +44,7 @@ find_package(pybind11 CONFIG REQUIRED)
 # ============================================================================
 set(MONTE_CARLO_SOURCES
     src/monte_carlo.cpp
+    src/greeks_engine.cpp
 )
 
 set(BINDING_SOURCES

@@ -34,8 +34,6 @@ def get_iv_surface(ticker: str):
         
     return {
         "ticker": ticker.upper(),
-        "x": data["x"],
-        "y": data["y"],
-        "z": data["z"],
+        **data,  # Unpack x, y, z, delta, gamma, etc.
         "count": len(data["x"])
     }

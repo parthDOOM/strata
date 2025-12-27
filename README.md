@@ -126,6 +126,15 @@ Proprietary C++ engine for high-performance price path simulation.
 *   **Model**: Geometric Brownian Motion (GBM).
 *   **Inputs**: Historical Volatility over 1 year.
 *   **Outputs**: 10,000+ simulations to estimate 5th percentile (Risk) and 95th percentile (Upside).
+*   **Tail Risk Metrics**: Value at Risk (VaR) and Conditional VaR (CVaR) at 95% confidence.
+
+### Options Analysis
+![Options Analysis](frontend/public/assets/options.png)
+Advanced 3D visualization of Options Implied Volatility and Greeks.
+*   **3D Volatility Surface**: Interactive 3D mesh visualizing Implied Volatility across Strike Price and Days to Expiry.
+*   **Greeks Visualization**: Togglable 3D views for Delta, Gamma, Vega, Theta, and Rho.
+*   **Smart Search**: Integrated ticker search with autocomplete.
+*   **High-Performance Engine**: Black-Scholes Greeks calculated via C++ extension for sub-millisecond latency.
 
 ### Portfolio Management
 ![Portfolio Dashboard](frontend/public/assets/my_Portfolio_demo.png)

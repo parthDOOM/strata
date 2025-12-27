@@ -316,6 +316,35 @@ def get_simulation_summary(
     params = validate_and_prepare_params(session, request)
     result = run_simulation(session, request)
 
+    s0 = params.s0
+    
+    # Calculate Tail Risk Metrics
+    # VaR: Difference between Initial Price and Percentile Price (Positive = Loss)
+    # We use max(0, ...) to ensure meaningful loss (though price can gain, VaR usually focuses on downside)
+    # Actually, VaR is just the loss amount at that confidence level. 
+    # If percentile is > s0 (gain), VaR is negative (no loss).
+    var_95 = s0 - result.final_percentile_05
+    var_99 = s0 - result.final_percentile_01
+
+    # CVaR (Expected Shortfall): Average of prices *below* the VaR threshold
+    # Note: final_prices is sorted in C++? Yes.
+    # But C++ result.final_prices might be just a list copy.
+    # We can filter locally.
+    
+    cutoff_95 = result.final_percentile_05
+    cutoff_99 = result.final_percentile_01
+    
+    # optimization: final_prices is sorted!
+    # But filtering is O(N) anyway, fine for 10k items.
+    
+    tail_losses_95 = [p for p in result.final_prices if p <= cutoff_95]
+    avg_tail_price_95 = sum(tail_losses_95) / len(tail_losses_95) if tail_losses_95 else cutoff_95
+    cvar_95 = s0 - avg_tail_price_95
+
+    tail_losses_99 = [p for p in result.final_prices if p <= cutoff_99]
+    avg_tail_price_99 = sum(tail_losses_99) / len(tail_losses_99) if tail_losses_99 else cutoff_99
+    cvar_99 = s0 - avg_tail_price_99
+
     return {
         "ticker": params.ticker,
         "parameters": {
@@ -344,5 +373,11 @@ def get_simulation_summary(
                 "min": result.final_price_min,
                 "max": result.final_price_max,
             },
+            "tail_risk": {
+                "var_95": var_95,
+                "var_99": var_99,
+                "cvar_95": cvar_95,
+                "cvar_99": cvar_99,
+            }
         },
     }

@@ -10,10 +10,10 @@ import { Search, Loader2, Layers } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { IVSurfaceResponse, getIVSurface } from "@/services/options";
 import IVSurfaceChart from "@/components/charts/IVSurfaceChart";
+import { CompanySearch } from "@/components/CompanySearch";
 
 export default function OptionsAnalysis() {
     const [ticker, setTicker] = useState("SPY");
@@ -32,12 +32,6 @@ export default function OptionsAnalysis() {
         },
     });
 
-    const handleFetch = (e?: React.FormEvent) => {
-        e?.preventDefault();
-        if (!ticker) return;
-        mutation.mutate(ticker);
-    };
-
     return (
         <div className="space-y-6">
             {/* Header / Controls */}
@@ -52,22 +46,26 @@ export default function OptionsAnalysis() {
                     </p>
                 </div>
 
-                <form onSubmit={handleFetch} className="flex gap-2 w-full sm:w-auto">
-                    <Input
-                        value={ticker}
-                        onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                        placeholder="Ticker (e.g. SPY, AAPL)"
-                        className="w-32 font-mono uppercase"
-                    />
-                    <Button type="submit" disabled={mutation.isPending}>
+                <div className="flex gap-2 w-full sm:w-auto items-center">
+                    <div className="w-64">
+                        <CompanySearch onSelect={(result) => {
+                            setTicker(result.symbol);
+                            mutation.mutate(result.symbol);
+                        }} />
+                    </div>
+                    <Button
+                        onClick={() => ticker && mutation.mutate(ticker)}
+                        disabled={mutation.isPending || !ticker}
+                        variant="secondary"
+                    >
                         {mutation.isPending ? (
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         ) : (
                             <Search className="w-4 h-4 mr-2" />
                         )}
-                        Fetch Chain
+                        Refresh
                     </Button>
-                </form>
+                </div>
             </div>
 
             {/* Main Content */}

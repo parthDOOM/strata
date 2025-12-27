@@ -100,8 +100,8 @@ export default function MonteCarlo() {
                 <div className="text-sm">
                     <h5 className="font-medium mb-1">About this Simulation</h5>
                     <p className="text-muted-foreground">
-                        This tool uses a <strong>C++ Accelerated Geometric Brownian Motion (GBM)</strong> engine to generate {numSimulations.toLocaleString()} possible future price paths based on historical volatility and drift.
-                        It helps quantify <strong>Tail Risk</strong> (5th Percentile) and identify <strong>Upside Potential</strong> (95th Percentile).
+                        This tool uses a <strong>C++ Accelerated Geometric Brownian Motion (GBM)</strong> engine to generate {numSimulations.toLocaleString()} future price paths based on historical volatility and drift.
+                        It calculates <strong>VaR (Value at Risk)</strong> to estimate maximum potential loss at a specific confidence level, and <strong>CVaR (Conditional VaR)</strong> to measure the average loss in the worst-case tail scenarios.
                     </p>
                 </div>
             </div>
@@ -305,13 +305,59 @@ export default function MonteCarlo() {
                                 </div>
 
                                 {/* Parameters Info */}
-                                <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-                                    <p className="text-sm text-muted-foreground">
-                                        <strong>Parameters:</strong> μ = {(mutation.data.parameters.mu * 100).toFixed(2)}% (drift),
-                                        σ = {(mutation.data.parameters.sigma * 100).toFixed(2)}% (volatility),
-                                        using {mutation.data.parameters.data_points_used} historical data points
-                                    </p>
-                                </div>
+                                <>
+                                    {/* Tail Risk Analytics */}
+                                    {mutation.data.results.tail_risk && (
+                                        <div className="mt-8">
+                                            <h4 className="flex items-center gap-2 text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">
+                                                <AlertCircle className="w-4 h-4" />
+                                                Tail Risk Analytics
+                                            </h4>
+                                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                                <StatCard
+                                                    label="VaR (95%)"
+                                                    value={formatCurrency(mutation.data.results.tail_risk.var_95)}
+                                                    icon={TrendingDown}
+                                                    positive={false}
+                                                    change={-(mutation.data.results.tail_risk.var_95 / mutation.data.parameters.s0)}
+                                                    helperText="Value at Risk (95%)"
+                                                />
+                                                <StatCard
+                                                    label="CVaR (95%)"
+                                                    value={formatCurrency(mutation.data.results.tail_risk.cvar_95)}
+                                                    icon={Activity}
+                                                    positive={false}
+                                                    change={-(mutation.data.results.tail_risk.cvar_95 / mutation.data.parameters.s0)}
+                                                    helperText="Expected Shortfall (Avg of 5%)"
+                                                />
+                                                <StatCard
+                                                    label="VaR (99%)"
+                                                    value={formatCurrency(mutation.data.results.tail_risk.var_99)}
+                                                    icon={TrendingDown}
+                                                    positive={false}
+                                                    change={-(mutation.data.results.tail_risk.var_99 / mutation.data.parameters.s0)}
+                                                    helperText="Value at Risk (Extreme)"
+                                                />
+                                                <StatCard
+                                                    label="CVaR (99%)"
+                                                    value={formatCurrency(mutation.data.results.tail_risk.cvar_99)}
+                                                    icon={Activity}
+                                                    positive={false}
+                                                    change={-(mutation.data.results.tail_risk.cvar_99 / mutation.data.parameters.s0)}
+                                                    helperText="Expected Shortfall (Extreme)"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+                                        <p className="text-sm text-muted-foreground">
+                                            <strong>Parameters:</strong> μ = {(mutation.data.parameters.mu * 100).toFixed(2)}% (drift),
+                                            σ = {(mutation.data.parameters.sigma * 100).toFixed(2)}% (volatility),
+                                            using {mutation.data.parameters.data_points_used} historical data points
+                                        </p>
+                                    </div>
+                                </>
                             </>
                         )}
                     </CardContent>

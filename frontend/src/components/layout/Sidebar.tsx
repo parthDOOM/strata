@@ -13,6 +13,7 @@ import {
     TrendingUp,
     Database,
     Settings,
+    Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -221,6 +222,9 @@ export function Sidebar({ className }: SidebarProps) {
                 </NavItem>
                 <NavItem to="/strategies" icon={TrendingUp}>
                     Strategies
+                </NavItem>
+                <NavItem to="/options" icon={Activity}>
+                    Options Analysis
                 </NavItem>
 
                 <p className="px-3 py-2 mt-6 text-xs font-semibold text-muted-foreground uppercase tracking-wider">

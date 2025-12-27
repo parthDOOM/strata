@@ -8,6 +8,11 @@ export interface IVSurfaceResponse {
     x: number[];
     y: number[];
     z: number[];
+    delta?: number[];
+    gamma?: number[];
+    vega?: number[];
+    theta?: number[];
+    rho?: number[];
     count: number;
 }
 

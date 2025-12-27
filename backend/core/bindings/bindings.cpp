@@ -10,6 +10,7 @@
 #include <pybind11/stl.h>  // Automatic STL <-> Python conversion
 
 #include "monte_carlo.h"
+#include "greeks_engine.h"
 
 namespace py = pybind11;
 
@@ -60,6 +61,9 @@ PYBIND11_MODULE(monte_carlo_engine, m) {
         .def_readwrite("final_price_std", &quant::SimulationResult::final_price_std)
         .def_readwrite("final_price_min", &quant::SimulationResult::final_price_min)
         .def_readwrite("final_price_max", &quant::SimulationResult::final_price_max)
+        .def_readwrite("final_prices", &quant::SimulationResult::final_prices)
+        .def_readwrite("final_percentile_05", &quant::SimulationResult::final_percentile_05)
+        .def_readwrite("final_percentile_01", &quant::SimulationResult::final_percentile_01)
         .def("__repr__", [](const quant::SimulationResult& r) {
             return "<SimulationResult mean_final=" + std::to_string(r.final_price_mean) +
                    " std=" + std::to_string(r.final_price_std) + ">";
@@ -106,6 +110,50 @@ PYBIND11_MODULE(monte_carlo_engine, m) {
         py::arg("seed") = 0
     );
 
+    // Bind GreeksResult struct
+    py::class_<quant::GreeksResult>(m, "GreeksResult",
+        R"pbdoc(
+            Calculated Black-Scholes Greeks.
+
+            Attributes:
+                delta: Sensitivity to price change
+                gamma: Sensitivity to delta change
+                vega: Sensitivity to volatility change (per 1% vol)
+                theta: Time decay (per 1 day)
+                rho: Sensitivity to interest rate (per 1% rate)
+        )pbdoc")
+        .def(py::init<>())
+        .def_readwrite("delta", &quant::GreeksResult::delta)
+        .def_readwrite("gamma", &quant::GreeksResult::gamma)
+        .def_readwrite("vega", &quant::GreeksResult::vega)
+        .def_readwrite("theta", &quant::GreeksResult::theta)
+        .def_readwrite("rho", &quant::GreeksResult::rho)
+        .def("__repr__", [](const quant::GreeksResult& g) {
+            return "<GreeksResult delta=" + std::to_string(g.delta) +
+                   " gamma=" + std::to_string(g.gamma) + ">";
+        });
+
+    // Bind calculate_greeks function
+    m.def("calculate_greeks", &quant::calculate_greeks,
+        R"pbdoc(
+            Calculate Option Greeks using Black-Scholes.
+
+            Args:
+                strike: Strike price
+                time_to_expiry: Time to expiry in years
+                spot: Current spot price
+                risk_free_rate: Risk-free interest rate (e.g. 0.05 for 5%)
+                volatility: Implied volatility (e.g. 0.20 for 20%)
+                is_call: True for Call, False for Put (default: True)
+        )pbdoc",
+        py::arg("strike"),
+        py::arg("time_to_expiry"),
+        py::arg("spot"),
+        py::arg("risk_free_rate"),
+        py::arg("volatility"),
+        py::arg("is_call") = true
+    );
+
     // Version info
-    m.attr("__version__") = "0.1.0";
+    m.attr("__version__") = "0.2.0";
 }
