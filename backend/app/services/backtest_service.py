@@ -74,10 +74,10 @@ class BacktestService:
                 elif z > entry_z:
                     position = -1 # Short Spread (Short A, Long B)
             elif position == 1:
-                if z > -exit_z or z < -stop_z: # Revert to mean (profit) or Stop Loss
+                if z > -exit_z or z < -stop_loss_z: # Revert to mean (profit) or Stop Loss
                     position = 0
             elif position == -1:
-                if z < exit_z or z > stop_z: # Revert to mean (profit) or Stop Loss
+                if z < exit_z or z > stop_loss_z: # Revert to mean (profit) or Stop Loss
                     position = 0
             
             signals[i] = position

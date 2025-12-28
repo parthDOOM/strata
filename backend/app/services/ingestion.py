@@ -120,18 +120,35 @@ class MarketDataService:
     ) -> int:
         """
         Bulk insert price data from a Polars DataFrame.
-
-        Uses executemany for optimal SQLite performance.
+        Filters out existing dates to prevent unique constraint violations.
         """
         if df.is_empty():
             return 0
 
         # Convert Polars DataFrame to list of dicts
         records = df.to_dicts()
+        if not records:
+            return 0
+            
+        # Extract potential new dates
+        new_dates = {rec["date"] for rec in records}
+        
+        # Query DB for existing dates within this set
+        statement = select(DailyPrice.trade_date).where(
+            DailyPrice.symbol == symbol,
+            DailyPrice.trade_date.in_(new_dates)
+        )
+        existing_dates = set(session.exec(statement).all())
+        
+        # Filter records
+        new_records = [r for r in records if r["date"] not in existing_dates]
+        
+        if not new_records:
+            return 0
 
         # Create DailyPrice objects
         price_objects = []
-        for record in records:
+        for record in new_records:
             price = DailyPrice(
                 symbol=symbol,
                 trade_date=record["date"],
