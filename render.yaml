@@ -3,8 +3,8 @@ services:
   - type: web
     name: quant-backend
     runtime: docker
-    dockerContext: .
-    dockerfilePath: ./backend/Dockerfile
+    rootDir: backend
+    dockerfilePath: Dockerfile
     envVars:
       - key: API_ENV
         value: production
@@ -14,10 +14,11 @@ services:
     plan: free
 
   # Frontend Service (Static Site)
-  - type: static_site
+  - type: static
     name: quant-frontend
-    buildCommand: cd frontend && npm install && npm run build
-    publishPath: ./frontend/dist
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    rootDir: frontend
     envVars:
       - key: VITE_API_URL
         fromService:
