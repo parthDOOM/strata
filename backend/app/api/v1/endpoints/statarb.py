@@ -3,6 +3,7 @@ Statistical Arbitrage API endpoints.
 """
 from typing import List
 from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException, Query
+from starlette.concurrency import run_in_threadpool
 from sqlmodel import Session, select
 from app.core.db import get_session, engine
 from app.models.statarb import CointegratedPair
@@ -11,11 +12,18 @@ from app.schemas.statarb import AnalysisRequest, AnalysisResponse, SpreadPoint
 
 router = APIRouter(prefix="/statarb", tags=["StatArb"])
 
-def run_analysis_task(universe: List[str]):
-    """Background task to run pairs analysis."""
-    with Session(engine) as session:
-        service = CointegrationService()
-        service.find_pairs(universe, session)
+async def run_analysis_task(universe: List[str]):
+    """Background task to run pairs analysis (CPU bound)."""
+    print(f"Starting StatArb analysis for {len(universe)} tickers...")
+    try:
+        # Create a new session for the background thread
+        with Session(engine) as session:
+            service = CointegrationService()
+            # Run the synchronous CPU-bound task in a separate thread
+            pairs_found = await run_in_threadpool(service.find_pairs, universe, session)
+            print(f"StatArb analysis complete. Found {pairs_found} pairs.")
+    except Exception as e:
+        print(f"StatArb analysis failed: {e}")
 
 @router.post("/analyze", response_model=AnalysisResponse)
 async def analyze_pairs(
