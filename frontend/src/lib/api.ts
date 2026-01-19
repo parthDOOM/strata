@@ -14,8 +14,18 @@ import axios, { AxiosError, type AxiosResponse } from "axios";
  * - JSON content type headers
  * - Response interceptor for error handling
  */
+// Determine base URL: use env var or default, ensuring it ends with /api/v1
+const getBaseUrl = () => {
+    let url = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+    if (!url.endsWith("/api/v1")) {
+        // Remove trailing slash if present before appending
+        url = url.replace(/\/$/, "") + "/api/v1";
+    }
+    return url;
+};
+
 export const api = axios.create({
-    baseURL: "http://localhost:8000/api/v1",
+    baseURL: getBaseUrl(),
     headers: {
         "Content-Type": "application/json",
     },

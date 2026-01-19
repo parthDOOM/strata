@@ -1,0 +1,30 @@
+services:
+  # Backend Service (Docker)
+  - type: web
+    name: quant-backend
+    runtime: docker
+    context: .
+    dockerfilePath: ./backend/Dockerfile
+    envVars:
+      - key: API_ENV
+        value: production
+      - key: DATABASE_URL
+        value: sqlite:////app/data/quant.db
+    healthCheckPath: /api/v1/health
+    plan: free
+
+  # Frontend Service (Static Site)
+  # Note: For free hosting, you might prefer Vercel or Netlify for the frontend,
+  # but Render can host static sites too.
+  - type: web
+    name: quant-frontend
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: quant-backend
+          property: url
+          envVarKey: VITE_API_URL # Render injects the URL but we might need to append /api/v1

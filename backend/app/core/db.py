@@ -18,14 +18,18 @@ _data_dir.mkdir(parents=True, exist_ok=True)
 
 # SQLite database path
 _db_path = _data_dir / "quant.db"
-DATABASE_URL = f"sqlite:///{_db_path}"
+# DATABASE_URL = f"sqlite:///{_db_path}"
 
 # Create engine with SQLite-specific settings
 # check_same_thread=False is required for FastAPI's async context
+connect_args = {}
+if "sqlite" in settings.database_url:
+    connect_args["check_same_thread"] = False
+
 engine = create_engine(
-    DATABASE_URL,
+    settings.database_url,
     echo=settings.is_development,  # Log SQL in development
-    connect_args={"check_same_thread": False},
+    connect_args=connect_args,
 )
 
 
