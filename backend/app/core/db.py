@@ -44,7 +44,24 @@ def create_db_and_tables() -> None:
     from app.models import market_data, portfolio  # noqa: F401
 
     SQLModel.metadata.create_all(engine)
-    print(f"Database initialized at: {_db_path}")
+    
+    # Create safe URL for logging (mask password)
+    url = settings.database_url
+    if "@" in url:
+        # postgresql://user:pass@host... -> postgresql://user:****@host...
+        prefix = url.split("@")[0]
+        suffix = url.split("@")[1]
+        # Keep scheme and user, hide pass
+        if ":" in prefix and "//" in prefix:
+            scheme_user = prefix.split(":")[0] + ":" + prefix.split(":")[1].split("//")[1] 
+            # Actually simpler: just take the last part
+            safe_url = f"{url.split('://')[0]}://****@{suffix}"
+        else:
+            safe_url = "Request with credentials"
+    else:
+        safe_url = url
+        
+    print(f"Database initialized with URL: {safe_url}")
 
 
 def get_session() -> Generator[Session, None, None]:
