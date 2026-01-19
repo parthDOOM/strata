@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy dependencies
-COPY requirements.txt .
+COPY backend/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -36,8 +36,8 @@ RUN cd core && \
     cp *.so /app/app/engine/
 
 # Copy application code
-COPY app/ ./app/
-COPY scripts/ ./scripts/
+COPY backend/app/ ./app/
+COPY backend/scripts/ ./scripts/
 
 # Create data directory
 RUN mkdir -p /app/data

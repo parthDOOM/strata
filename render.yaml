@@ -2,9 +2,9 @@ services:
   # Backend Service (Docker)
   - type: web
     name: quant-backend
-    runtime: docker
-    rootDir: backend
-    dockerfilePath: Dockerfile
+    env: docker
+    rootDir: .
+    dockerfilePath: backend/Dockerfile
     envVars:
       - key: API_ENV
         value: production
@@ -14,11 +14,12 @@ services:
     plan: free
 
   # Frontend Service (Static Site)
-  - type: static
+  - type: web
     name: quant-frontend
-    buildCommand: npm install && npm run build
-    publishPath: dist
+    env: static
     rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
     envVars:
       - key: VITE_API_URL
         fromService:
