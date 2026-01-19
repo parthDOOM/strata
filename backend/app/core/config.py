@@ -6,9 +6,9 @@ type-safe access to configuration values.
 """
 
 from functools import lru_cache
-from typing import Literal
+from typing import Literal, Any
 
-from pydantic import Field, computed_field
+from pydantic import Field, computed_field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -44,6 +44,14 @@ class Settings(BaseSettings):
         default="sqlite:///../data/quant.db",
         description="Database connection URL",
     )
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def fix_postgres_protocol(cls, v: Any) -> Any:
+        """Fix postgres:// protocol to postgresql:// for SQLAlchemy compatibility."""
+        if isinstance(v, str) and v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql://", 1)
+        return v
 
     # =========================
     # Alpaca Trading API
