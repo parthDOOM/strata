@@ -5,7 +5,7 @@
  */
 
 import { Activity, TrendingUp, BarChart3, DollarSign } from "lucide-react";
-import LivePriceChart from "@/components/charts/LivePriceChart";
+import { LivePriceChart } from "@/components/charts/LivePriceChart";
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";

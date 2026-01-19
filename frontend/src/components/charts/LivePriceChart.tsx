@@ -4,8 +4,15 @@
  */
 import { useEffect, useState } from "react";
 import { LineChart, Line, YAxis, ResponsiveContainer } from "recharts";
+import { Wifi, WifiOff } from "lucide-react";
+
 import { getWebSocketUrl } from "@/lib/api";
 import { useWebSocket } from "@/hooks/useWebSocket";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+
+const HISTORY_KEY_PREFIX = "live_chart_history_";
+const MAX_HISTORY_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 interface LivePriceChartProps {
     ticker: string;
@@ -48,7 +55,8 @@ export function LivePriceChart({ ticker }: LivePriceChartProps) {
     useEffect(() => {
         if (data) {
             setHistory(prev => {
-                const newHistory = [...prev, data];
+                const newPoint = { time: data.timestamp, price: data.price };
+                const newHistory = [...prev, newPoint];
                 // Keep the window moving (last 50 points)
                 if (newHistory.length > 50) return newHistory.slice(-50);
                 return newHistory;
