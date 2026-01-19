@@ -28,3 +28,7 @@ services:
           type: web
           name: quant-backend
           property: host
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

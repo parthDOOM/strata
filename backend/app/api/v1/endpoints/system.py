@@ -1,12 +1,42 @@
 import os
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from sqlmodel import Session, select, func, text
-from app.core.db import get_session
+from app.core.db import get_session, engine
 from app.models.market_data import DailyPrice, Ticker
 from app.core.config import settings
 from pydantic import BaseModel
+# Import seeding logic (ensure scripts module is accessible)
+import sys
+from pathlib import Path
+# Add project root to path if needed, though 'scripts' should be importable if run from root
+try:
+    from scripts.seed_market_data import seed_tickers, sync_all_market_data
+except ImportError:
+    # Fallback for different execution contexts
+    sys.path.append(str(Path(__file__).parent.parent.parent.parent.parent))
+    from scripts.seed_market_data import seed_tickers, sync_all_market_data
 
 router = APIRouter(prefix="/system", tags=["system"])
+
+def run_seed_task():
+    """Background task to run seeding logic."""
+    print("Starting manual seed task...")
+    try:
+        with Session(engine) as session:
+            seed_tickers(session)
+            sync_all_market_data(session)
+        print("Manual seed task completed successfully.")
+    except Exception as e:
+        print(f"Manual seed task failed: {e}")
+
+@router.post("/seed")
+def trigger_seed(background_tasks: BackgroundTasks):
+    """
+    Manually trigger the database seed process in the background.
+    Useful if the initial seed failed or for ephemeral environments.
+    """
+    background_tasks.add_task(run_seed_task)
+    return {"message": "Seeding process started in background. Check server logs for progress."}
 
 class SystemHealthResponse(BaseModel):
     ticker_count: int
