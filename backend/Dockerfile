@@ -17,7 +17,7 @@ COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy C++ core source
-COPY core/ ./core/
+COPY backend/core/ ./core/
 
 # Build C++ extension
 # Assumes the output .so file needs to be in app/engine or PYTHONPATH
