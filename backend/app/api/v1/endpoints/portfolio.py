@@ -162,26 +162,14 @@ def get_portfolio_performance(portfolio_id: int, session: Session = Depends(get_
         })
 
     # 5. Current Snapshot (Holdings)
-    # We can use the very last state of last_known_prices for "current price"
-    # or fetch the single latest row if we want up-to-the-minute.
-    # The existing loop below does a fresh fetch per symbol, which is fine for small N.
-    # Let's optimize it to use our last_known_prices if fresh enough, or just keep existing loop for safety.
-    # Actually, sticking to the existing loop for "Holdings" list is safer for "latest available" 
-    # if our 90-day history query missed today's live data (though DailyPrice is usually EOD).
+    # Optimized: Use last_known_prices from the bulk query instead of N+1 DB calls.
     
     total_value = 0.0
     holdings_data = []
     
     for item in portfolio.items:
-        # Get latest price explicitly to ensure we have the absolute latest DB has
-        # (Re-using the loop logic from before, but slightly cleaner)
-        statement = select(DailyPrice).where(DailyPrice.symbol == item.symbol).order_by(DailyPrice.trade_date.desc()).limit(1)
-        latest_row = session.exec(statement).first()
-        
-        current_price = latest_row.close if latest_row else item.average_price
-        # Fallback to last_known from history if DB fetch fails (unlikely)
-        if not latest_row and item.symbol in last_known_prices:
-             current_price = last_known_prices[item.symbol]
+        # Use price from our history cache (most recent date) or fallback to avg_price
+        current_price = last_known_prices.get(item.symbol, item.average_price)
 
         market_value = current_price * item.quantity
         total_value += market_value
