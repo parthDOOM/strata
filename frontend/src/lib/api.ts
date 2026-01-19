@@ -17,6 +17,13 @@ import axios, { AxiosError, type AxiosResponse } from "axios";
 // Determine base URL: use env var or default, ensuring it ends with /api/v1
 const getBaseUrl = () => {
     let url = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+    
+    // Ensure protocol
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        url = `https://${url}`;
+    }
+
+    // Ensure suffix
     if (!url.endsWith("/api/v1")) {
         // Remove trailing slash if present before appending
         url = url.replace(/\/$/, "") + "/api/v1";
