@@ -10,7 +10,7 @@ services:
         value: production
       - key: DATABASE_URL
         value: sqlite:////app/data/quant.db
-    healthCheckPath: /api/v1/health
+    healthCheckPath: /health
     plan: free
 
   # Frontend Service (Static Site)
