@@ -19,7 +19,6 @@ api_router.include_router(options_router)
 api_router.include_router(portfolio_router)
 api_router.include_router(stream_router)
 api_router.include_router(backtest_router)
-api_router.include_router(backtest_router)
 api_router.include_router(system_router)
 api_router.include_router(news_router, prefix="/news", tags=["News"])
 
