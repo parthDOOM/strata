@@ -15,7 +15,7 @@ import axios, { AxiosError, type AxiosResponse } from "axios";
  * - Response interceptor for error handling
  */
 // Determine base URL: use env var or default, ensuring it ends with /api/v1
-const getBaseUrl = () => {
+export const getBaseUrl = () => {
     let url = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
     
     // Ensure protocol
@@ -29,6 +29,11 @@ const getBaseUrl = () => {
         url = url.replace(/\/$/, "") + "/api/v1";
     }
     return url;
+};
+
+export const getWebSocketUrl = () => {
+    const httpUrl = getBaseUrl();
+    return httpUrl.replace(/^http/, "ws");
 };
 
 export const api = axios.create({

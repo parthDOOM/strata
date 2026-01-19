@@ -114,10 +114,11 @@ export default function Dashboard() {
     );
 }
 
+import { getWebSocketUrl } from "@/lib/api";
 import { useWebSocket } from "@/hooks/useWebSocket";
 
 function WatchlistItem({ ticker }: { ticker: string }) {
-    const { data } = useWebSocket(`ws://127.0.0.1:8000/api/v1/stream/ws/live/${ticker}`);
+    const { data } = useWebSocket(`${getWebSocketUrl()}/stream/ws/live/${ticker}`);
 
     // Determine color based on change (if available) or fallback to grey
     const isPositive = data?.change ? data.change >= 0 : true;

@@ -4,22 +4,16 @@
  */
 import { useEffect, useState } from "react";
 import { LineChart, Line, YAxis, ResponsiveContainer } from "recharts";
+import { getWebSocketUrl } from "@/lib/api";
 import { useWebSocket } from "@/hooks/useWebSocket";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wifi, WifiOff } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface LivePriceChartProps {
     ticker: string;
 }
 
-const HISTORY_KEY_PREFIX = "live_chart_history_";
-const MAX_HISTORY_AGE_MS = 10 * 60 * 1000; // 10 minutes
-
-export default function LivePriceChart({ ticker }: LivePriceChartProps) {
-    // using localhost:8000 for direct connection (proxy handling for WS can be tricky)
-    const [history, setHistory] = useState<any[]>([]);
-    const { data, isConnected } = useWebSocket(`ws://127.0.0.1:8000/api/v1/stream/ws/live/${ticker}`);
+export function LivePriceChart({ ticker }: LivePriceChartProps) {
+    const [history, setHistory] = useState<{ time: string; price: number }[]>([]);
+    const { data, isConnected } = useWebSocket(`${getWebSocketUrl()}/stream/ws/live/${ticker}`);
 
     // Load history from local storage on mount
     useEffect(() => {

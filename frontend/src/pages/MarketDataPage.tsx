@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { getTickers } from "@/services/market";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { TickerSearch } from "@/components/TickerSearch";
+import { getWebSocketUrl } from "@/lib/api";
 
 export default function MarketDataPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -33,7 +34,7 @@ export default function MarketDataPage() {
     });
 
     // Live Price WebSocket
-    const { data: liveData } = useWebSocket(`ws://127.0.0.1:8000/api/v1/stream/ws/live/${selectedTicker}`);
+    const { data: liveData } = useWebSocket(`${getWebSocketUrl()}/stream/ws/live/${selectedTicker}`);
 
     return (
         <div className="space-y-6 h-[calc(100vh-100px)] flex flex-col">
