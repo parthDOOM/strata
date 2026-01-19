@@ -25,7 +25,7 @@ COPY backend/core/ ./core/
 RUN cd core && \
     mkdir build && \
     cd build && \
-    cmake .. && \
+    cmake -Dpybind11_DIR=$(python -m pybind11 --cmakedir) .. && \
     make && \
     # Move the compiled shared object to a location importable by the app
     # If the app expects it in app/engine/native or similar, we place it there.
