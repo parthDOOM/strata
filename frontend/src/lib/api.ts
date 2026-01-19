@@ -17,6 +17,11 @@ import axios, { AxiosError, type AxiosResponse } from "axios";
 // Determine base URL: use env var or default, ensuring it ends with /api/v1
 export const getBaseUrl = () => {
     let url = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+
+    // Heuristic: If it looks like an internal Render hostname (no dots, no localhost, no port), append .onrender.com
+    if (!url.includes(".") && !url.includes("localhost") && !url.includes(":")) {
+        url += ".onrender.com";
+    }
     
     // Ensure protocol
     if (!url.startsWith("http://") && !url.startsWith("https://")) {

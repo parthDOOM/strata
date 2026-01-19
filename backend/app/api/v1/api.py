@@ -35,7 +35,7 @@ def get_available_routes() -> list[dict]:
     for route in api_router.routes:
         if hasattr(route, "methods") and hasattr(route, "path"):
             routes.append({
-                "path": f"/api/v1{route.path}",
+                "path": route.path,
                 "methods": list(route.methods - {"HEAD", "OPTIONS"}),
                 "name": route.name,
                 "summary": getattr(route, "summary", None),
